@@ -200,10 +200,12 @@ Reset timestamps arrive with **microsecond precision** (`…:00.508711+00:00`), 
 
 ## Install
 
-**Homebrew (once the tap is published):**
+**Homebrew:**
 ```bash
 brew install bread-bang/tap/claude-usage
 ```
+Already added the tap? `brew install claude-usage` works too. The build is notarized,
+so it opens without Gatekeeper warnings.
 
 **Build from source:**
 ```bash
@@ -246,4 +248,4 @@ Keychain item exists).
 
 ## License
 
-Open source — add your preferred license (MIT recommended) before publishing.
+[MIT](LICENSE) © Bread-bang
