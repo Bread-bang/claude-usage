@@ -12,7 +12,7 @@
 # scripts/release.sh (or run `brew bump-cask-pr` once the cask is published).
 cask "claude-usage" do
   version "0.1.0"
-  sha256 "REPLACE_WITH_SHA256_FROM_release.sh"
+  sha256 "e437646de54235ad3f023d0b564ad8e1fd152879faf347dfb1bfdebfbe45e429"
 
   url "https://github.com/Bread-bang/claude-usage/releases/download/v#{version}/ClaudeUsage-#{version}.zip"
   name "Claude Usage"
