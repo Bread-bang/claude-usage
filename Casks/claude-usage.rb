@@ -1,15 +1,3 @@
-# Homebrew Cask for Claude Usage.
-#
-# This file lives in your TAP repository, not the app repo. Create a repo named
-# `homebrew-tap` under your account and place this at `Casks/claude-usage.rb`:
-#
-#   github.com/Bread-bang/homebrew-tap → Casks/claude-usage.rb
-#
-# Users then install with:
-#   brew install bread-bang/tap/claude-usage
-#
-# After each release, bump `version` and replace `sha256` with the value printed by
-# scripts/release.sh (or run `brew bump-cask-pr` once the cask is published).
 cask "claude-usage" do
   version "0.1.0"
   sha256 "e437646de54235ad3f023d0b564ad8e1fd152879faf347dfb1bfdebfbe45e429"
@@ -23,6 +11,8 @@ cask "claude-usage" do
 
   app "Claude Usage.app"
 
+  zap trash: "~/Library/Preferences/com.github.bread-bang.claude-usage.plist"
+
   caveats <<~EOS
     Claude Usage lives in the menu bar and has no Dock icon. Launch it with:
 
@@ -32,8 +22,4 @@ cask "claude-usage" do
     you have signed in once (run `claude`). To start it automatically, add it under
     System Settings → General → Login Items.
   EOS
-
-  zap trash: [
-    "~/Library/Preferences/com.github.bread-bang.claude-usage.plist",
-  ]
 end
