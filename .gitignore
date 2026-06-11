@@ -1,0 +1,24 @@
+# SwiftPM
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# Distribution artifacts
+dist/
+*.app
+*.dmg
+*.zip
+
+# macOS
+.DS_Store
+
+# Never commit credentials or captured API responses
+*.token
+secrets.json
+captured-usage.json
