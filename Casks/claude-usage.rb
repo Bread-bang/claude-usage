@@ -19,7 +19,7 @@ cask "claude-usage" do
   desc "Menu bar app showing Claude Code usage without launching Claude Code"
   homepage "https://github.com/Bread-bang/claude-usage"
 
-  depends_on macos: ">= :ventura"
+  depends_on macos: :ventura
 
   app "Claude Usage.app"
 
