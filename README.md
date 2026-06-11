@@ -4,22 +4,9 @@ A lightweight, native macOS **menu bar app** that shows your Claude Code usage �
 session (5‑hour), weekly (all models / Sonnet), and pay‑as‑you‑go credits — in real time,
 without launching Claude Code or spending Agent SDK credits.
 
-```
-◔ 41%                         ← in the menu bar
-
-┌────────────────────────────────────┐
-│ ⓘ Claude Usage                     │
-│   you@example.com                  │
-│                                    │
-│ Current session              41%   │  ███████░░░░░░░░░
-│ Current week (all models)    44%   │  ████████░░░░░░░░
-│ Current week (Sonnet only)    0%   │  ░░░░░░░░░░░░░░░░
-│ Usage credits        $0.62 / $40   │  ░░░░░░░░░░░░░░░░
-│ ────────────────────────────────── │
-│ Reset In                  3h 42m   │
-│ Updated 12s ago         ⚙ ↻ ⏻     │
-└────────────────────────────────────┘
-```
+<p align="center">
+  <img src="docs/screenshot.png" alt="Claude Usage menu bar app showing session, weekly, Sonnet, and credit usage" width="480">
+</p>
 
 - **100% local.** No backend, no telemetry, no cookies — it reuses the OAuth token already
   in your Keychain from Claude Code.
