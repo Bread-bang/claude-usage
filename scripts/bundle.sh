@@ -24,6 +24,7 @@ mkdir -p "$APP_DIR/Contents/Resources"
 
 cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
+cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 # Sign with a STABLE identity so the Keychain "Always Allow" grant survives rebuilds.
 # Ad-hoc signatures change every build (CDHash-based), which invalidates the grant and

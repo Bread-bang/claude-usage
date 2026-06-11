@@ -45,6 +45,7 @@ rm -rf "$APP_DIR" "$ZIP_PATH"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
+cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 echo "==> Code signing (Developer ID + hardened runtime)…"
 # Hardened runtime (--options runtime) and a secure timestamp are required for notarization.

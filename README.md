@@ -1,4 +1,8 @@
-# Claude Usage
+<p align="center">
+  <img src="docs/icon.png" alt="Claude Usage" width="120">
+</p>
+
+<h1 align="center">Claude Usage</h1>
 
 A lightweight, native macOS **menu bar app** that shows your Claude Code usage — current
 session (5‑hour), weekly (all models / Sonnet), and pay‑as‑you‑go credits — in real time,
