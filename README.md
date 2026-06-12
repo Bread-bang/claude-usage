@@ -6,7 +6,8 @@
 
 A lightweight, native macOS **menu bar app** that shows your Claude Code usage — current
 session (5‑hour), weekly (all models / Sonnet), and pay‑as‑you‑go credits — in real time,
-without launching Claude Code or spending Agent SDK credits.
+without launching Claude Code or spending Agent SDK credits. A second widget tracks the
+**context‑window usage** of the session you're currently typing in.
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Claude Usage menu bar app showing session, weekly, Sonnet, and credit usage" width="480">
@@ -40,6 +41,9 @@ item exists). To start it at login: System Settings → General → Login Items 
 
 - Current session (5‑hour), current week (all models and Sonnet only), and usage credits —
   each with a utilization bar and its reset time.
+- **Context‑window widget:** a separate menu‑bar item showing how full the context is in
+  the Claude Code session you last typed in (e.g. `28%`), with automatic 200K vs 1M window
+  detection. It follows whichever terminal pane has focus — no Accessibility permissions.
 - Menu‑bar number for the window of your choice, with traffic‑light colors.
 - Selectable icon and refresh interval (30s / 1m / 5m); settings and the last report
   persist across launches.
@@ -52,6 +56,9 @@ item exists). To start it at login: System Settings → General → Login Items 
   endpoint Claude Code uses. Nothing is sent anywhere else; no analytics.
 - The token is read from Claude Code's Keychain item through Apple's `/usr/bin/security`
   tool and held only in memory for each request — never written to disk or logged.
+- The context widget is local too: it reads occupancy from Claude Code's own transcript
+  files under `~/.claude/projects/` and adds an idempotent hook to `~/.claude/settings.json`
+  (preserving existing hooks) to learn which session is active. Nothing leaves your machine.
 
 ## Development
 
