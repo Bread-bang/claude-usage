@@ -63,8 +63,14 @@ xcrun stapler staple "$APP_DIR"
 spctl --assess --type execute --verbose=4 "$APP_DIR" || true
 
 echo "==> Re-zipping the stapled app for distribution…"
+# --norsrc --noextattr strips macOS resource forks and extended attributes so the archive
+# carries no AppleDouble (`._*`) sidecar files. Safe here because the notarization ticket
+# lives in a real file (Contents/CodeResources), not an xattr — verified with
+# `stapler validate` after a clean round-trip — so neither stapling nor the code signature
+# depends on the xattrs we drop. (The notarization-submission zip above keeps Apple's
+# default ditto invocation; it's discarded after upload.)
 rm -f "$ZIP_PATH"
-ditto -c -k --keepParent "$APP_DIR" "$ZIP_PATH"
+ditto -c -k --keepParent --norsrc --noextattr "$APP_DIR" "$ZIP_PATH"
 
 SHA="$(shasum -a 256 "$ZIP_PATH" | awk '{print $1}')"
 echo
