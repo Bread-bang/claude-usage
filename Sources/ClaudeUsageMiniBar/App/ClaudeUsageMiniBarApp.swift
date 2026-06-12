@@ -1,10 +1,24 @@
 import SwiftUI
 import AppKit
 
+/// Process entry point. Branches on `--hook-relay` *before* any AppKit bootstrap so the
+/// hook-relay invocation (fired by Claude Code hooks on every turn) stays a fast, headless
+/// read-stdin-write-file-exit with no menu bar item, no Dock, no event loop.
 @main
+enum AppEntry {
+    static func main() {
+        if CommandLine.arguments.dropFirst().contains("--hook-relay") {
+            HookRelay.run()
+            return
+        }
+        ClaudeUsageMiniBarApp.main()
+    }
+}
+
 struct ClaudeUsageMiniBarApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var vm: UsageViewModel
+    @StateObject private var contextVM = ContextViewModel()
 
     private let account = AccountInfo.loadFromClaudeConfig()
 
@@ -16,6 +30,7 @@ struct ClaudeUsageMiniBarApp: App {
     }
 
     var body: some Scene {
+        // Two independent menu-bar items: rate-limit usage, and the context battery.
         MenuBarExtra {
             UsageDropdownView(vm: vm, account: account)
         } label: {
@@ -26,6 +41,14 @@ struct ClaudeUsageMiniBarApp: App {
                 .onAppear { vm.start() }
         }
         .menuBarExtraStyle(.window) // rich SwiftUI panel rather than a plain menu
+
+        MenuBarExtra {
+            ContextDropdownView(vm: contextVM)
+        } label: {
+            ContextMenuBarLabel(vm: contextVM)
+                .onAppear { contextVM.start() }
+        }
+        .menuBarExtraStyle(.window)
     }
 }
 
@@ -36,5 +59,8 @@ struct ClaudeUsageMiniBarApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApplication.shared.setActivationPolicy(.accessory)
+        // Register our hook-relay command in ~/.claude/settings.json so context tracking
+        // works without the user editing anything. Idempotent; preserves existing hooks.
+        HookInstaller.installIfNeeded()
     }
 }

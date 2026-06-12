@@ -52,6 +52,19 @@ enum UsageFormat {
         return "\(Int(pct))%"
     }
 
+    /// Compact token count for the context card: `538210` -> `"538K"`,
+    /// `200_000` -> `"200K"`, `1_000_000` -> `"1M"`, `1_500_000` -> `"1.5M"`.
+    static func tokensCompact(_ n: Int) -> String {
+        if n >= 1_000_000 {
+            let m = Double(n) / 1_000_000
+            return m == m.rounded() ? "\(Int(m))M" : String(format: "%.1fM", m)
+        }
+        if n >= 1_000 {
+            return "\(Int((Double(n) / 1_000).rounded()))K"
+        }
+        return "\(n)"
+    }
+
     /// Compact "time until reset": `"3h 42m"`, `"12m"`, or `"now"`.
     static func countdown(to date: Date?, now: Date = Date()) -> String? {
         guard let date else { return nil }
