@@ -13,6 +13,10 @@ without launching Claude Code or spending Agent SDK credits. A second widget tra
   <img src="docs/screenshot.png" alt="Claude Usage menu bar app showing session, weekly, Sonnet, and credit usage" width="480">
 </p>
 
+<p align="center">
+  <img src="docs/context.png" alt="Context-window widget showing how full the current Claude Code session is" width="380">
+</p>
+
 - **100% local.** No backend, no telemetry, no cookies — it reuses the OAuth token already
   in your Keychain from Claude Code.
 - Pure Swift + SwiftUI + `MenuBarExtra`. No Electron, no dependencies. Notarized.
@@ -42,7 +46,7 @@ item exists). To start it at login: System Settings → General → Login Items 
 - Current session (5‑hour), current week (all models and Sonnet only), and usage credits —
   each with a utilization bar and its reset time.
 - **Context‑window widget:** a separate menu‑bar item showing how full the context is in
-  the Claude Code session you last typed in (e.g. `28%`), with automatic 200K vs 1M window
+  the Claude Code session you last typed in (e.g. `36%`), with automatic 200K vs 1M window
   detection. It follows whichever terminal pane has focus — no Accessibility permissions.
 - Menu‑bar number for the window of your choice, with traffic‑light colors.
 - Selectable icon and refresh interval (30s / 1m / 5m); settings and the last report
