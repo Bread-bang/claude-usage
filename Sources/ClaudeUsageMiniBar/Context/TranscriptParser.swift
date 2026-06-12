@@ -89,6 +89,54 @@ enum TranscriptParser {
         return Int(text[start..<end])
     }
 
+    /// Timestamp of the most recent **real user turn** in the transcript — the last
+    /// main-thread (`isSidechain != true`) `user` line that actually carries user text (a typed
+    /// prompt or a slash command's recorded output), not a `tool_result` fed back mid-response.
+    ///
+    /// This is the signal for "a human acted in this session", which the file's mtime is *not*:
+    /// Claude Code rewrites a transcript's tail (resume markers, mode/permission lines) for a
+    /// backgrounded or just-reopened session that nobody is watching, bumping mtime without any
+    /// human action. Ranking on mtime therefore lets an unwatched pane overtake the focused one;
+    /// ranking on the last user turn does not. Reads a single bounded tail — a recent user line
+    /// is effectively always within it — and returns `nil` rather than widening to the whole
+    /// (possibly multi-megabyte) file, since this runs on the main actor every refresh.
+    static func lastUserTurn(atPath path: String, maxTailBytes: Int = 1 << 20) -> Date? {
+        guard let handle = FileHandle(forReadingAtPath: path) else { return nil }
+        defer { try? handle.close() }
+        let size = (try? handle.seekToEnd()) ?? 0
+        guard size > 0 else { return nil }
+        let start = size > UInt64(maxTailBytes) ? size - UInt64(maxTailBytes) : 0
+        guard (try? handle.seek(toOffset: start)) != nil,
+              let data = try? handle.readToEnd() else { return nil }
+
+        var lines = data.split(separator: 0x0A, omittingEmptySubsequences: true)
+        if start > 0, !lines.isEmpty { lines.removeFirst() } // truncated first line
+        let decoder = JSONDecoder()
+        for slice in lines.reversed() {
+            guard let line = try? decoder.decode(UserTurnLine.self, from: Data(slice)),
+                  line.type == "user",
+                  line.isSidechain != true,
+                  line.message?.containsUserText == true, // skip tool_result-only user lines
+                  let stamp = line.timestamp,
+                  let date = parseTimestamp(stamp)
+            else { continue }
+            return date
+        }
+        return nil
+    }
+
+    private static func parseTimestamp(_ string: String) -> Date? {
+        iso8601WithFraction.date(from: string) ?? iso8601Plain.date(from: string)
+    }
+
+    private static let iso8601WithFraction: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let iso8601Plain = ISO8601DateFormatter()
+
     /// Byte offsets to start reading from: the tail first, then (only if needed) the start.
     private static func scanOffsets(size: UInt64, maxTailBytes: Int) -> [UInt64] {
         size > UInt64(maxTailBytes) ? [size - UInt64(maxTailBytes), 0] : [0]
@@ -150,6 +198,33 @@ private struct ContextRecordLine: Decodable {
     }
 
     var text: String? { content ?? message?.content?.text }
+}
+
+/// A `user`-type line, decoded just enough to tell a real human turn from a `tool_result`
+/// that Claude Code records under the user role mid-response. `containsUserText` is true when
+/// the content is a non-empty string or an array holding at least one `text` block.
+private struct UserTurnLine: Decodable {
+    let type: String?
+    let isSidechain: Bool?
+    let timestamp: String?
+    let message: Message?
+
+    struct Message: Decodable {
+        let containsUserText: Bool
+
+        private enum CodingKeys: String, CodingKey { case content }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let string = try? container.decode(String.self, forKey: .content) {
+                containsUserText = !string.isEmpty
+            } else {
+                struct Block: Decodable { let type: String? }
+                let blocks = (try? container.decode([Block].self, forKey: .content)) ?? []
+                containsUserText = blocks.contains { $0.type == "text" }
+            }
+        }
+    }
 }
 
 /// The subset of a transcript line we care about. Unknown keys are ignored by `Decodable`,

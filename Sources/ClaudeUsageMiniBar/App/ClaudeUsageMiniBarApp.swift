@@ -30,9 +30,13 @@ struct ClaudeUsageMiniBarApp: App {
     }
 
     var body: some Scene {
-        // Two independent menu-bar items: rate-limit usage, and the context battery.
+        // Two independent menu-bar items: rate-limit usage, and the context widget.
+        // Each popup registers its window with the coordinator and dismisses the other when
+        // it opens, so only one panel is ever on screen at a time.
         MenuBarExtra {
             UsageDropdownView(vm: vm, account: account)
+                .background(PopupWindowRegistrar(id: Self.usageID))
+                .onAppear { MenuBarPopupCoordinator.shared.hideOthers(except: Self.usageID) }
         } label: {
             // The label renders the moment the app launches (it *is* the menu bar item),
             // so polling starts immediately. Hanging this on the dropdown instead would
@@ -44,12 +48,17 @@ struct ClaudeUsageMiniBarApp: App {
 
         MenuBarExtra {
             ContextDropdownView(vm: contextVM)
+                .background(PopupWindowRegistrar(id: Self.contextID))
+                .onAppear { MenuBarPopupCoordinator.shared.hideOthers(except: Self.contextID) }
         } label: {
             ContextMenuBarLabel(vm: contextVM)
                 .onAppear { contextVM.start() }
         }
         .menuBarExtraStyle(.window)
     }
+
+    private static let usageID = "usage"
+    private static let contextID = "context"
 }
 
 /// Forces "agent" (accessory) activation so the app lives only in the menu bar:

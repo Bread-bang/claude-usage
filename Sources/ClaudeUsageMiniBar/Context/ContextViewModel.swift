@@ -91,6 +91,9 @@ final class ContextViewModel: ObservableObject {
         cwd: String,
         session: SessionInfo
     ) {
+        // A slow parse must not clobber the report if the active session changed while it ran
+        // (e.g. the user switched panes mid-parse) — that's how a stale value briefly wins.
+        guard session.id == tracker.active?.id else { return }
         guard let parsed else { report = nil; return }
         let limit = ContextLimitDetector.limit(
             cwd: cwd,
