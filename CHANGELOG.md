@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-14
+
 ### Changed
 - Context-window usage moved out of a second menu bar widget and into Claude Code's
   **status line** (`Opus 4.8 · 11% · 113K/1M`). Because each pane renders its own status
@@ -52,6 +54,7 @@ All notable changes to this project are documented here. The format is based on
 - Rate-limit (HTTP 429) backoff and a grace window before showing a stale warning.
 - `bundle.sh` for local builds and `release.sh` for Developer ID signing + notarization.
 
-[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Bread-bang/claude-usage/compare/v0.2.1...v0.3.0
 [0.2.0]: https://github.com/Bread-bang/claude-usage/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Bread-bang/claude-usage/releases/tag/v0.1.0
