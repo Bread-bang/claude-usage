@@ -6,15 +6,15 @@
 
 A lightweight, native macOS **menu bar app** that shows your Claude Code usage — current
 session (5‑hour), weekly (all models / Sonnet), and pay‑as‑you‑go credits — in real time,
-without launching Claude Code or spending Agent SDK credits. A second widget tracks the
-**context‑window usage** of the session you're currently typing in.
+without launching Claude Code or spending Agent SDK credits. It also drops a compact
+**context‑window readout** into Claude Code's status line, right under your prompt.
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Claude Usage menu bar app showing session, weekly, Sonnet, and credit usage" width="480">
 </p>
 
 <p align="center">
-  <img src="docs/context.png" alt="Context-window widget showing how full the current Claude Code session is" width="380">
+  <img src="docs/statusline.png" alt="Context-window readout in Claude Code's status line: model, percent full, and tokens used" width="420">
 </p>
 
 - **100% local.** No backend, no telemetry, no cookies — it reuses the OAuth token already
@@ -45,9 +45,11 @@ item exists). To start it at login: System Settings → General → Login Items 
 
 - Current session (5‑hour), current week (all models and Sonnet only), and usage credits —
   each with a utilization bar and its reset time.
-- **Context‑window widget:** a separate menu‑bar item showing how full the context is in
-  the Claude Code session you last typed in (e.g. `36%`), with automatic 200K vs 1M window
-  detection. It follows whichever terminal pane has focus — no Accessibility permissions.
+- **Context in the status line:** a one‑line readout under your Claude Code prompt — model,
+  percent full, and tokens used (e.g. `Opus 4.8 · 11% · 113K/1M`), with the 200K vs 1M window
+  reported directly by Claude Code. Because each pane renders its own, it's always the right
+  session — even across many panes (tmux, cmux) — with no guesswork and no Accessibility
+  permissions.
 - Menu‑bar number for the window of your choice, with traffic‑light colors.
 - Selectable icon and refresh interval (30s / 1m / 5m); settings and the last report
   persist across launches.
@@ -60,9 +62,10 @@ item exists). To start it at login: System Settings → General → Login Items 
   endpoint Claude Code uses. Nothing is sent anywhere else; no analytics.
 - The token is read from Claude Code's Keychain item through Apple's `/usr/bin/security`
   tool and held only in memory for each request — never written to disk or logged.
-- The context widget is local too: it reads occupancy from Claude Code's own transcript
-  files under `~/.claude/projects/` and adds an idempotent hook to `~/.claude/settings.json`
-  (preserving existing hooks) to learn which session is active. Nothing leaves your machine.
+- The context readout is local too: Claude Code passes the live context window to a
+  status‑line command on stdin, and we just format it. We register that command in
+  `~/.claude/settings.json` only when the status‑line slot is empty or already ours —
+  another tool's status line is never overwritten. Nothing leaves your machine.
 
 ## Development
 
