@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Changed
+- Context-window usage moved out of a second menu bar widget and into Claude Code's
+  **status line** (`Opus 4.8 · 11% · 113K/1M`). Because each pane renders its own status
+  line, it always shows the session you are looking at — fixing the wrong-session mismatch
+  seen in multi-pane setups (tmux, cmux). The window size (200K/1M) and token counts now
+  come straight from Claude Code's `context_window` payload, so no transcript parsing or
+  limit heuristics are involved.
+- The status line installs only when the `statusLine` slot is empty or already ours, so
+  another tool's status line is never overwritten.
+
+### Removed
+- The context menu bar widget and all active-session tracking it required: the
+  `--hook-relay` hook, transcript parsing, the 200K/1M detection ladder, and the tty-atime
+  focus heuristics. The hook entries are also removed from `~/.claude/settings.json`.
+
 ## [0.2.0] - 2026-06-12
 
 ### Added
