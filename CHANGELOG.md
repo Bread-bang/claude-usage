@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-14
+
+### Fixed
+- Upgrading from 0.2.x left a stale `--hook-relay` hook in `~/.claude/settings.json`. v0.3.0
+  no longer handles that argument, so Claude Code's Stop hook booted the GUI app (whose run
+  loop never exits) and the terminal hung on "running stop hooks…". The binary now exits
+  immediately when invoked with `--hook-relay`, and on launch the app removes the leftover
+  hook entries it installed (another tool's hooks are preserved).
+
 ## [0.3.0] - 2026-06-14
 
 ### Changed
@@ -54,7 +63,8 @@ All notable changes to this project are documented here. The format is based on
 - Rate-limit (HTTP 429) backoff and a grace window before showing a stale warning.
 - `bundle.sh` for local builds and `release.sh` for Developer ID signing + notarization.
 
-[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/Bread-bang/claude-usage/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Bread-bang/claude-usage/compare/v0.2.1...v0.3.0
 [0.2.0]: https://github.com/Bread-bang/claude-usage/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Bread-bang/claude-usage/releases/tag/v0.1.0

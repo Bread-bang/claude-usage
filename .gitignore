@@ -22,3 +22,4 @@ dist/
 *.token
 secrets.json
 captured-usage.json
+.context/

@@ -8,8 +8,18 @@ import AppKit
 @main
 enum AppEntry {
     static func main() {
-        if CommandLine.arguments.dropFirst().contains("--statusline") {
+        let flags = CommandLine.arguments.dropFirst()
+        if flags.contains("--statusline") {
             StatusLineRelay.run()
+            return
+        }
+        // A stale `--hook-relay` hook from v0.2.x can still invoke this binary after an
+        // upgrade. That mode is gone (context moved to the status line); without this guard
+        // the argument falls through to the GUI app, whose run loop never exits — so Claude
+        // Code's Stop hook waits forever and the terminal hangs on "running stop hooks". Exit
+        // immediately (no stdin, no GUI). Match `--hook-relay` exactly: a broad unknown-arg
+        // exit would mask future CLI mistakes.
+        if flags.contains("--hook-relay") {
             return
         }
         ClaudeUsageMiniBarApp.main()
@@ -54,5 +64,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // under the prompt without the user editing anything. Non-destructive: installs only
         // into an empty-or-ours single slot, never clobbering another tool's status line.
         StatusLineInstaller.installIfPossible()
+        // Clear the `--hook-relay` hooks v0.2.x left in settings.json. AppEntry already
+        // neutralizes the hang from them; this stops Claude Code from spawning us on every
+        // turn for a dead integration. One-time and idempotent — a no-op once clean.
+        LegacyHookCleaner.removeLegacyHooks()
     }
 }
