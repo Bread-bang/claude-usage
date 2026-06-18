@@ -4,10 +4,16 @@
 
 <h1 align="center">Claude Usage</h1>
 
-A lightweight, native macOS **menu bar app** that shows your Claude Code usage — current
-session (5‑hour), weekly (all models / Sonnet), and pay‑as‑you‑go credits — in real time,
-without launching Claude Code or spending Agent SDK credits. It also drops a compact
-**context‑window readout** into Claude Code's status line, right under your prompt.
+A lightweight, native macOS app for Claude Code that does two things from the moment you
+open a pane:
+
+- **Context in the status line.** A one‑line readout right under your prompt — model,
+  percent full, and tokens used (e.g. `Opus 4.8 · 11% · 113K/1M`) — so you can `/compact`
+  *before* the model starts forgetting. Each pane renders its own, so it's always the right
+  session across tmux and cmux, with no Accessibility permissions.
+- **Usage in the menu bar.** Current session (5‑hour), weekly (all models / Sonnet), and
+  pay‑as‑you‑go credits — each with a utilization bar and reset time, in real time, without
+  launching Claude Code or spending Agent SDK credits.
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Claude Usage menu bar app showing session, weekly, Sonnet, and credit usage" width="480">
