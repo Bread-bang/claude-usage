@@ -47,6 +47,15 @@ cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
 cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
+# SwiftPM emits a resource bundle for artwork (Clawd mascot, Claude spark). Copy it in
+# before signing so `Bundle.module` resolves at runtime and the seal covers it — without
+# this the notarized release ships with no artwork.
+RES_BUNDLE="$(swift build -c release --show-bin-path)/${APP_NAME}_${APP_NAME}.bundle"
+if [ -d "$RES_BUNDLE" ]; then
+    cp -R "$RES_BUNDLE" "$APP_DIR/Contents/Resources/"
+    echo "==> Bundled resources: $(basename "$RES_BUNDLE")"
+fi
+
 echo "==> Code signing (Developer ID + hardened runtime)…"
 # Hardened runtime (--options runtime) and a secure timestamp are required for notarization.
 codesign --force --options runtime --timestamp --sign "$SIGN_ID" "$APP_DIR"
