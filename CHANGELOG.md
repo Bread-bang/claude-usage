@@ -6,6 +6,24 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-15
+
+### Fixed
+- **Daily re-login into Claude Code.** The app self-refreshed Claude Code's shared OAuth
+  token; because Anthropic rotates refresh tokens (single-use), that invalidated Claude
+  Code's own copy roughly once a day and forced a re-login. Self-refresh is now off — the
+  app reads the token read-only and never rotates it. Trade-off: while Claude Code is idle
+  and its token has expired, usage shows the last known snapshot until Claude Code refreshes.
+
+### Added
+- **Per-model weekly usage.** Anthropic moved model-scoped weekly caps (e.g. Fable) into a
+  new `limits[]` field; the dropdown now reads it and shows a "Current week (<model>)" row,
+  replacing the empty legacy "Sonnet only" row.
+- **Server-driven bar colors.** Usage bars follow the server's `severity` (normal/warning/…)
+  when present, falling back to the previous percentage thresholds.
+- **Clawd menu-bar icon.** The menu bar shows the Clawd mascot (tinted) and the dropdown
+  header shows the Claude spark; both are selectable/bundled artwork.
+
 ## [0.3.1] - 2026-06-14
 
 ### Fixed
@@ -63,7 +81,8 @@ All notable changes to this project are documented here. The format is based on
 - Rate-limit (HTTP 429) backoff and a grace window before showing a stale warning.
 - `bundle.sh` for local builds and `release.sh` for Developer ID signing + notarization.
 
-[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Bread-bang/claude-usage/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Bread-bang/claude-usage/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Bread-bang/claude-usage/compare/v0.2.1...v0.3.0
 [0.2.0]: https://github.com/Bread-bang/claude-usage/compare/v0.1.0...v0.2.0
