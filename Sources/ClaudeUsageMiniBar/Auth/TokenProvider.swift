@@ -6,11 +6,21 @@ import Foundation
 /// Strategy (in priority order):
 /// 1. **Piggyback.** Read Claude Code's credential on every request. While Claude Code is
 ///    used, *it* refreshes the token and we get fresh tokens for free — no writes, no races.
-/// 2. **Self-refresh (opt-in, default on).** If the token is expired/near-expiry and a
-///    refresh token is present, exchange it at the OAuth token endpoint and persist the
+/// 2. **Self-refresh (opt-in, DEFAULT OFF — see warning).** If the token is expired/near-expiry
+///    and a refresh token is present, exchange it at the OAuth token endpoint and persist the
 ///    result into this app's OWN Keychain item. Claude Code's item is never written to:
 ///    modifying another app's item triggers keychain password prompts, and a re-encode
 ///    would drop fields this app does not model (e.g. `mcpOAuth` server tokens).
+///
+/// ⚠️ Why self-refresh defaults to OFF: Anthropic's OAuth refresh tokens are ROTATING
+/// (single-use). Redeeming Claude Code's refresh token invalidates it server-side; the
+/// replacement lands only in this app's own item, so the next time Claude Code (or the
+/// desktop host) tries to refresh with its now-dead token it fails and forces the user to
+/// re-login. Because this app polls every 60s and refreshes 120s before expiry, it wins the
+/// refresh race almost every time — in practice that broke the user's Claude Code login
+/// once a day, every day (confirmed by A/B test, 2026-07). Two clients cannot share one
+/// rotating refresh-token chain. Do not re-enable this against Claude Code's credential;
+/// the correct long-term fix is an independent OAuth grant of our own.
 ///
 /// Being an `actor` guarantees only one refresh runs at a time within this process.
 actor TokenProvider {
@@ -32,7 +42,7 @@ actor TokenProvider {
     init(claudeCodeStore: KeychainStore = KeychainStore(),
          refreshStore: KeychainStore = KeychainStore(service: "ClaudeUsageMiniBar-credentials",
                                                      readPath: .framework),
-         refreshEnabled: Bool = true,
+         refreshEnabled: Bool = false,
          session: URLSession = .shared) {
         self.claudeCodeStore = claudeCodeStore
         self.refreshStore = refreshStore
