@@ -14,6 +14,10 @@ let package = Package(
         .executableTarget(
             name: "ClaudeUsageMiniBar",
             path: "Sources/ClaudeUsageMiniBar",
+            // Menu-bar / header artwork (Clawd mascot, Claude spark) loaded via `Bundle.module`.
+            resources: [
+                .process("Resources")
+            ],
             // Keep language mode at v5 so the skeleton compiles cleanly everywhere while
             // still being written to satisfy Swift 6 strict concurrency where it matters.
             swiftSettings: [

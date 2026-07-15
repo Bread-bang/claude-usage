@@ -26,6 +26,15 @@ cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
 cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
+# SwiftPM emits a resource bundle for artwork (Clawd mascot, Claude spark). Copy it into
+# Contents/Resources so `Bundle.module` resolves at runtime — without this the images load
+# under `swift run` but come up nil in the bundled .app.
+RES_BUNDLE="$(swift build -c release --show-bin-path)/${APP_NAME}_${APP_NAME}.bundle"
+if [ -d "$RES_BUNDLE" ]; then
+    cp -R "$RES_BUNDLE" "$APP_DIR/Contents/Resources/"
+    echo "==> Bundled resources: $(basename "$RES_BUNDLE")"
+fi
+
 # Sign with a STABLE identity so the Keychain "Always Allow" grant survives rebuilds.
 # Ad-hoc signatures change every build (CDHash-based), which invalidates the grant and
 # re-triggers the Keychain password prompt each launch. A self-signed local identity keeps

@@ -16,7 +16,7 @@ open a pane:
   launching Claude Code or spending Agent SDK credits.
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Claude Usage menu bar app showing session, weekly, Sonnet, and credit usage" width="480">
+  <img src="docs/screenshot.png" alt="Claude Usage menu bar app showing session, weekly, and per-model (Fable) usage" width="480">
 </p>
 
 <p align="center">

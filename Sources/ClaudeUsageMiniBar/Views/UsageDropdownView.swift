@@ -26,9 +26,18 @@ struct UsageDropdownView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            Image(systemName: "gauge.with.dots.needle.50percent")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.tint)
+            Group {
+                if let spark = Artwork.spark {
+                    Image(nsImage: spark)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                } else {
+                    Image(systemName: "gauge.with.dots.needle.50percent")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.tint)
+                }
+            }
             VStack(alignment: .leading, spacing: 1) {
                 Text("Claude Usage")
                     .font(.system(size: 13, weight: .semibold))
@@ -52,12 +61,41 @@ struct UsageDropdownView: View {
             StaleBanner(reason: vm.error?.errorDescription ?? "refresh failed")
         }
 
-        WindowRow(title: "Current session", window: vm.report?.fiveHour)
-        WindowRow(title: "Current week (all models)", window: vm.report?.sevenDay)
-        WindowRow(title: "Current week (Sonnet only)", window: vm.report?.sevenDaySonnet)
+        WindowRow(title: "Current session",
+                  window: vm.report?.fiveHour,
+                  severity: vm.report?.limit(kind: "session")?.severity)
+        WindowRow(title: "Current week (all models)",
+                  window: vm.report?.sevenDay,
+                  severity: vm.report?.limit(kind: "weekly_all")?.severity)
+
+        modelScopedRows
 
         if let extra = vm.report?.extraUsage, extra.isEnabled {
             ExtraUsageRow(extra: extra)
+        }
+    }
+
+    /// Per-model weekly caps. Anthropic moved these from the legacy top-level
+    /// `seven_day_sonnet`/`seven_day_opus` fields into `limits[]` (e.g. Fable), so we render
+    /// whatever model-scoped entries the server sends. Falls back to the old fields when a
+    /// server predates `limits[]`.
+    @ViewBuilder
+    private var modelScopedRows: some View {
+        let scoped = vm.report?.weeklyScopedLimits ?? []
+        if !scoped.isEmpty {
+            ForEach(scoped) { limit in
+                WindowRow(title: "Current week (\(limit.modelName ?? "model"))",
+                          window: RateLimitWindow(utilization: limit.percent,
+                                                  resetsAtRaw: limit.resetsAtRaw),
+                          severity: limit.severity)
+            }
+        } else {
+            if let sonnet = vm.report?.sevenDaySonnet {
+                WindowRow(title: "Current week (Sonnet only)", window: sonnet)
+            }
+            if let opus = vm.report?.sevenDayOpus {
+                WindowRow(title: "Current week (Opus only)", window: opus)
+            }
         }
     }
 
@@ -91,7 +129,7 @@ struct UsageDropdownView: View {
             }
             Picker("Icon", selection: $vm.menuBarIcon) {
                 ForEach(MenuBarIconOption.catalog) { option in
-                    Label(option.name, systemImage: option.symbol).tag(option.symbol)
+                    Label(option.name, systemImage: option.pickerSymbol).tag(option.symbol)
                 }
             }
             Picker("Refresh every", selection: $vm.refreshInterval) {

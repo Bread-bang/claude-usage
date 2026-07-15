@@ -8,9 +8,16 @@ import AppKit
 @main
 enum AppEntry {
     static func main() {
-        let flags = CommandLine.arguments.dropFirst()
+        let args = CommandLine.arguments
+        let flags = args.dropFirst()
         if flags.contains("--statusline") {
             StatusLineRelay.run()
+            return
+        }
+        // Hidden: render the README mock screenshot and exit. `--screenshot <path>`.
+        if let idx = args.firstIndex(of: "--screenshot") {
+            let path = idx + 1 < args.count ? args[idx + 1] : "usage-screenshot.png"
+            MainActor.assumeIsolated { ScreenshotMock.render(to: path) }
             return
         }
         // A stale `--hook-relay` hook from v0.2.x can still invoke this binary after an
