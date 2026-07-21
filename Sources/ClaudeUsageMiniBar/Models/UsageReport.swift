@@ -31,7 +31,7 @@ struct UsageReport: Codable, Sendable, Equatable {
     let extraUsage: ExtraUsage?
     /// Server-provided limit entries (newer API shape). Model-scoped weekly caps (e.g. Fable)
     /// live here rather than in the legacy top-level `seven_day_sonnet`/`seven_day_opus`
-    /// fields, and each entry carries a `severity` the UI colors by. `nil` on older servers.
+    /// fields. `nil` on older servers.
     let limits: [UsageLimit]?
 
     enum CodingKeys: String, CodingKey {
@@ -45,10 +45,6 @@ struct UsageReport: Codable, Sendable, Equatable {
 }
 
 extension UsageReport {
-    /// First `limits[]` entry of a given `kind` (e.g. `"session"`, `"weekly_all"`).
-    /// Used to attach the server's `severity` to the legacy top-level windows.
-    func limit(kind: String) -> UsageLimit? { limits?.first { $0.kind == kind } }
-
     /// Model-scoped weekly caps (`kind == "weekly_scoped"`), e.g. Fable. One row each.
     var weeklyScopedLimits: [UsageLimit] {
         (limits ?? []).filter { $0.kind == "weekly_scoped" && $0.percent.isFinite }
@@ -70,7 +66,8 @@ struct UsageLimit: Codable, Sendable, Equatable, Identifiable {
     let group: String?
     /// Percentage consumed, 0…100 (the API sends an integer such as `68`).
     let percent: Double
-    /// Server's own assessment: `"normal"`, `"warning"`, … Drives the bar color when present.
+    /// Server's own assessment: `"normal"`, `"warning"`, … Decoded but unused; the UI
+    /// colors bars by utilization thresholds instead (the server stays "normal" well past 50%).
     let severity: String?
     /// ISO-8601 reset timestamp as sent by the server. Kept raw for parse tolerance.
     let resetsAtRaw: String?

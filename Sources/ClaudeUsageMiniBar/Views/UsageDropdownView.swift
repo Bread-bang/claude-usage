@@ -62,11 +62,9 @@ struct UsageDropdownView: View {
         }
 
         WindowRow(title: "Current session",
-                  window: vm.report?.fiveHour,
-                  severity: vm.report?.limit(kind: "session")?.severity)
+                  window: vm.report?.fiveHour)
         WindowRow(title: "Current week (all models)",
-                  window: vm.report?.sevenDay,
-                  severity: vm.report?.limit(kind: "weekly_all")?.severity)
+                  window: vm.report?.sevenDay)
 
         modelScopedRows
 
@@ -86,8 +84,7 @@ struct UsageDropdownView: View {
             ForEach(scoped) { limit in
                 WindowRow(title: "Current week (\(limit.modelName ?? "model"))",
                           window: RateLimitWindow(utilization: limit.percent,
-                                                  resetsAtRaw: limit.resetsAtRaw),
-                          severity: limit.severity)
+                                                  resetsAtRaw: limit.resetsAtRaw))
             }
         } else {
             if let sonnet = vm.report?.sevenDaySonnet {

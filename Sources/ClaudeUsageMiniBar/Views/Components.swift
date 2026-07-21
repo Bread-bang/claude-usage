@@ -10,23 +10,12 @@ extension Color {
         }
     }
 
-    /// Tint from the server-provided `severity` on a limit entry, falling back to the
-    /// utilization-based tint when severity is absent or unrecognized (older API shape).
-    static func forSeverity(_ severity: String?, fallbackUtilization: Double) -> Color {
-        switch severity?.lowercased() {
-        case "normal", "ok", "low": return .green
-        case "warning", "warn", "elevated", "medium": return .yellow
-        case "critical", "severe", "high", "exceeded", "blocked", "unavailable": return .red
-        default: return forUtilization(fallbackUtilization)
-        }
-    }
 }
 
-/// A rounded progress bar tinted by the server `severity` (falling back to utilization).
+/// A rounded progress bar tinted by utilization.
 struct UsageBar: View {
     let fraction: Double      // 0…1
-    let utilization: Double   // 0…100, drives the color when severity is absent
-    var severity: String? = nil
+    let utilization: Double   // 0…100, drives the color
 
     var body: some View {
         GeometryReader { geo in
@@ -34,7 +23,7 @@ struct UsageBar: View {
                 RoundedRectangle(cornerRadius: 3)
                     .fill(Color.primary.opacity(0.14))
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(Color.forSeverity(severity, fallbackUtilization: utilization))
+                    .fill(Color.forUtilization(utilization))
                     .frame(width: max(3, geo.size.width * fraction))
             }
         }
@@ -53,7 +42,6 @@ private enum RowStyle {
 struct WindowRow: View {
     let title: String
     let window: RateLimitWindow?
-    var severity: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -62,8 +50,7 @@ struct WindowRow: View {
                 .lineLimit(1)
             HStack(spacing: 8) {
                 UsageBar(fraction: window?.fraction ?? 0,
-                         utilization: window?.utilization ?? 0,
-                         severity: severity)
+                         utilization: window?.utilization ?? 0)
                 Text(window.map { "\(UsageFormat.percent($0.utilization)) used" } ?? "—")
                     .font(RowStyle.value)
                     .foregroundStyle(.secondary)
