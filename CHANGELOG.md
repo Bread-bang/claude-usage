@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-07-22
+
+### Changed
+- **Bar colors follow percentages again.** 0.4.0 colored usage bars by the server's
+  `severity`, but the server reports "normal" well past 50% (observed at 67%), so the
+  yellow/red warnings users relied on effectively disappeared. Bars are back to the
+  local thresholds: green below 50%, yellow from 50%, red from 80%.
+
 ## [0.4.0] - 2026-07-15
 
 ### Fixed
