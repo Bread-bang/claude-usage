@@ -39,7 +39,10 @@ enum ISO8601Parser {
         let digits = s[after..<end]
         guard digits.count > 3 else { return nil }
         let keep = s[after..<s.index(after: s.index(after: s.index(after: dot)))]
-        return String(s[..<after]) + keep + String(s[end...])
+        var out = String(s[..<after])
+        out += keep
+        out += s[end...]
+        return out
     }
 }
 
