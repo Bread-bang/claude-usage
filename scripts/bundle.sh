@@ -11,6 +11,7 @@ APP_NAME="ClaudeUsageMiniBar"
 BUNDLE_NAME="Claude Usage.app"
 DIST="dist"
 APP_DIR="$DIST/$BUNDLE_NAME"
+VERSION="$(cat VERSION)"
 
 echo "==> Building release binary…"
 swift build -c release
@@ -24,6 +25,10 @@ mkdir -p "$APP_DIR/Contents/Resources"
 
 cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
+# Stamp VERSION into the copied Info.plist so the app reports the release it ships as
+# (the checked-in plist only holds placeholders; 0.3.0–0.4.2 all said "0.2.0").
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" \
+                        -c "Set :CFBundleVersion $VERSION" "$APP_DIR/Contents/Info.plist"
 cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 # SwiftPM emits a resource bundle for artwork (Clawd mascot, Claude spark). Copy it into

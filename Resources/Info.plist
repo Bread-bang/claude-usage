@@ -16,10 +16,11 @@
     <string>AppIcon</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+    <!-- Placeholders: scripts/bundle.sh and scripts/release.sh overwrite both from VERSION. -->
     <key>CFBundleShortVersionString</key>
-    <string>0.2.0</string>
+    <string>0.0.0</string>
     <key>CFBundleVersion</key>
-    <string>2</string>
+    <string>0.0.0</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <!-- Menu-bar-only: no Dock icon, no app-switcher entry. -->
