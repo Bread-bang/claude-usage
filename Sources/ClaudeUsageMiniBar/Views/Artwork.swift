@@ -1,16 +1,33 @@
 import SwiftUI
 import AppKit
 
-/// Bundled artwork, loaded once via `Bundle.module` (works under `swift run` and the .app,
-/// as long as the SPM resource bundle is copied next to the binary — see `scripts/bundle.sh`).
+/// Bundled artwork, loaded once from the SPM resource bundle that `scripts/bundle.sh`
+/// copies into `Contents/Resources` — see `resources` below for why `Bundle.module`
+/// cannot find it there.
 enum Artwork {
     /// The Clawd mascot as a white-on-transparent silhouette; tint it when drawing.
     static let clawd: NSImage? = load("clawd")
     /// The Claude "spark" mark in its own coral color.
     static let spark: NSImage? = load("claude-spark")
 
+    /// SwiftPM's generated `Bundle.module` looks in exactly two places: the *bundle root*
+    /// of `Bundle.main` and the absolute `.build` path of the machine that compiled the
+    /// binary. Neither works for a shipped .app — the bundle root is where a nested bundle
+    /// would break the code-signature seal, and the build path only exists on the release
+    /// machine, so `Bundle.module` traps at launch for everyone else. Resolve the bundle
+    /// out of `Contents/Resources` (also the executable's directory under `swift run`) and
+    /// keep `.module` as the fallback.
+    private static let resources: Bundle = {
+        let name = "ClaudeUsageMiniBar_ClaudeUsageMiniBar.bundle"
+        if let url = Bundle.main.resourceURL?.appendingPathComponent(name),
+           let bundle = Bundle(url: url) {
+            return bundle
+        }
+        return .module
+    }()
+
     private static func load(_ name: String) -> NSImage? {
-        guard let url = Bundle.module.url(forResource: name, withExtension: "png") else { return nil }
+        guard let url = resources.url(forResource: name, withExtension: "png") else { return nil }
         return NSImage(contentsOf: url)
     }
 }
