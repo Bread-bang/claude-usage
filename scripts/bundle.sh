@@ -27,8 +27,8 @@ cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
 cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 # SwiftPM emits a resource bundle for artwork (Clawd mascot, Claude spark). Copy it into
-# Contents/Resources so `Bundle.module` resolves at runtime — without this the images load
-# under `swift run` but come up nil in the bundled .app.
+# Contents/Resources, where `Artwork` looks it up (SwiftPM's `Bundle.module` alone cannot find
+# it there — see Artwork.swift).
 RES_BUNDLE="$(swift build -c release --show-bin-path)/${APP_NAME}_${APP_NAME}.bundle"
 if [ -d "$RES_BUNDLE" ]; then
     cp -R "$RES_BUNDLE" "$APP_DIR/Contents/Resources/"

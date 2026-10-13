@@ -48,8 +48,8 @@ cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
 cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 # SwiftPM emits a resource bundle for artwork (Clawd mascot, Claude spark). Copy it in
-# before signing so `Bundle.module` resolves at runtime and the seal covers it — without
-# this the notarized release ships with no artwork.
+# before signing so the seal covers it. `Artwork` looks it up in Contents/Resources itself;
+# SwiftPM's `Bundle.module` alone cannot find it there (see Artwork.swift).
 RES_BUNDLE="$(swift build -c release --show-bin-path)/${APP_NAME}_${APP_NAME}.bundle"
 if [ -d "$RES_BUNDLE" ]; then
     cp -R "$RES_BUNDLE" "$APP_DIR/Contents/Resources/"
@@ -70,6 +70,26 @@ xcrun notarytool submit "$ZIP_PATH" --keychain-profile "$NOTARY_PROFILE" --wait
 echo "==> Stapling the notarization ticket…"
 xcrun stapler staple "$APP_DIR"
 spctl --assess --type execute --verbose=4 "$APP_DIR" || true
+
+echo "==> Smoke test: launching the app as a user's machine would…"
+# SwiftPM's `Bundle.module` falls back to this machine's absolute .build path, so a resource
+# bundle the .app cannot find still loads here while every other Mac crashes at launch —
+# exactly how 0.4.0 and 0.4.1 shipped broken. Hide that path for the duration of the launch.
+if [ -d "$RES_BUNDLE" ]; then
+    mv "$RES_BUNDLE" "$RES_BUNDLE.smoke-hidden"
+    trap 'mv "$RES_BUNDLE.smoke-hidden" "$RES_BUNDLE"' EXIT
+fi
+"$APP_DIR/Contents/MacOS/$APP_NAME" >/dev/null 2>"$DIST/smoke.log" &
+SMOKE_PID=$!
+sleep 5
+if ! kill -0 "$SMOKE_PID" 2>/dev/null; then
+    echo "ERROR: the app exited during launch — not shipping it. Its stderr:" >&2
+    cat "$DIST/smoke.log" >&2
+    exit 1
+fi
+kill "$SMOKE_PID"
+wait "$SMOKE_PID" 2>/dev/null || true
+rm -f "$DIST/smoke.log"
 
 echo "==> Re-zipping the stapled app for distribution…"
 # --norsrc --noextattr strips macOS resource forks and extended attributes so the archive

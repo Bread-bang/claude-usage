@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-13
+
+### Fixed
+- **Crash at launch on every machine but the build machine.** 0.4.0 and 0.4.1 loaded the
+  bundled artwork through SwiftPM's `Bundle.module`, which only looks at the .app's root and
+  at the absolute `.build` path of the Mac that compiled it — never at `Contents/Resources`,
+  where the release puts the resource bundle. Installed copies trapped with "could not load
+  resource bundle" before showing anything. The artwork is now resolved from
+  `Contents/Resources`, with `Bundle.module` as the fallback. (Thanks @1ypen, #1.)
+- **Build failure on Swift 6.1.** The compiler timed out type-checking a string
+  concatenation in the ISO 8601 parser; it is now built from separate appends. (Thanks
+  @1ypen, #2.)
+
+### Changed
+- The release script now launches the finished .app with the build machine's resource path
+  hidden and refuses to ship if it exits, so this class of crash cannot reach a release again.
+
 ## [0.4.1] - 2026-07-22
 
 ### Changed
@@ -89,7 +106,9 @@ All notable changes to this project are documented here. The format is based on
 - Rate-limit (HTTP 429) backoff and a grace window before showing a stale warning.
 - `bundle.sh` for local builds and `release.sh` for Developer ID signing + notarization.
 
-[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/Bread-bang/claude-usage/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Bread-bang/claude-usage/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Bread-bang/claude-usage/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Bread-bang/claude-usage/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Bread-bang/claude-usage/compare/v0.2.1...v0.3.0
