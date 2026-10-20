@@ -44,6 +44,23 @@ echo "==> Assembling $APP_DIR …"
 rm -rf "$APP_DIR" "$ZIP_PATH"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 cp "$BIN_PATH" "$APP_DIR/Contents/MacOS/$APP_NAME"
+
+# Swift Build (SwiftPM's default build system since Swift 6.4) records the deployment target
+# (13.0) as the binary's SDK version. macOS 26 then runs the app in pre-26 compatibility mode
+# and draws the MenuBarExtra panel's legacy square frame inside the Liquid Glass window — how
+# 0.4.2 shipped. The binary *was* compiled against the current SDK, so write that version back,
+# then refuse to continue if the stamp still disagrees.
+SDK_VERSION="$(xcrun --show-sdk-version)"
+APP_BIN="$APP_DIR/Contents/MacOS/$APP_NAME"
+MIN_OS="$(vtool -show-build "$APP_BIN" | awk '$1 == "minos" { print $2; exit }')"
+vtool -set-build-version macos "$MIN_OS" "$SDK_VERSION" -replace -output "$APP_BIN.stamped" "$APP_BIN"
+mv "$APP_BIN.stamped" "$APP_BIN"
+STAMPED_SDK="$(vtool -show-build "$APP_BIN" | awk '$1 == "sdk" { print $2; exit }')"
+if [[ "$STAMPED_SDK" != "$SDK_VERSION" ]]; then
+    echo "ERROR: binary records SDK $STAMPED_SDK, expected $SDK_VERSION — not shipping it." >&2
+    exit 1
+fi
+echo "==> Stamped SDK $SDK_VERSION (minos $MIN_OS) into $APP_NAME"
 cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
 # Stamp VERSION into the copied Info.plist so the app reports the release it ships as
 # (the checked-in plist only holds placeholders; 0.3.0–0.4.2 all said "0.2.0").

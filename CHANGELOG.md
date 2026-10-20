@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-10-20
+
+### Fixed
+- **Doubled, square-cornered frame around the dropdown on macOS 26.** 0.4.2 was built with
+  Swift 6.4, whose default build system records the deployment target (13.0) as the SDK the
+  binary was linked against. macOS treated the app as pre-26 and drew the legacy square panel
+  inside the Liquid Glass window. The release binary now records the SDK it was actually
+  built with, and the build refuses to continue if it does not.
+- **Finder showed every release since 0.3.0 as version 0.2.0.** The bundled `Info.plist` now
+  carries the real version.
+
 ## [0.4.2] - 2026-10-13
 
 ### Fixed
@@ -106,7 +117,8 @@ All notable changes to this project are documented here. The format is based on
 - Rate-limit (HTTP 429) backoff and a grace window before showing a stale warning.
 - `bundle.sh` for local builds and `release.sh` for Developer ID signing + notarization.
 
-[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/Bread-bang/claude-usage/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/Bread-bang/claude-usage/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Bread-bang/claude-usage/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Bread-bang/claude-usage/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Bread-bang/claude-usage/compare/v0.3.1...v0.4.0
